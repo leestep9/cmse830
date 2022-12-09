@@ -85,6 +85,18 @@ df = df.replace({'Machine Learning Scientist': 'Data Scientist',
                  '3D Computer Vision Researcher': 'Data Scientist',
                  'Data Engineering Manager': 'Data Engineer',
                  'Finance Data Analyst': 'Data Analyst'})
+df = df.replace({'DE':'International', 'JP':'International', 'GB':'International', 'HN':'International', 'HU':'International',
+                 'NZ':'International', 'FR':'International', 'IN':'International', 'PK':'International', 'CN':'International',
+                 'GR':'International', 'AE':'International', 'NL':'International', 'MX':'International', 'CA':'International',
+                 'AT':'International', 'NG':'International', 'ES':'International', 'PT':'International', 'DK':'International',
+                 'IT':'International','HR':'International', 'LU':'International', 'PL':'International', 'SG':'International',
+                 'RO':'International', 'IQ':'International', 'BR':'International', 'BE':'International', 'UA':'International',
+                 'IL':'International', 'RU':'International','MT':'International', 'CL':'International', 'IR':'International',
+                 'CO':'International', 'MD':'International', 'KE':'International', 'SI':'International', 'CH':'International',
+                 'VN':'International', 'AS':'International', 'TR':'International','CZ':'International', 'DZ':'International',
+                 'EE':'International', 'MY':'International', 'AU':'International', 'IE':'International','PH':'International',
+                 'BG':'International', 'HK':'International', 'RS':'International', 'PR':'International','JE':'International',
+                 'AR':'International','TN':'International', 'BO':'International'})
 df = df.drop(columns=['Unnamed: 0', 'salary' , 'salary_currency'])
 
 X = df.copy()
@@ -100,11 +112,14 @@ left_column, right_column = st.columns(2)
 bool_dummy = left_column.radio('Transform categorical to quantative', ('Yes','No'))
 if bool_dummy == 'Yes':
   df_std = df.copy()
-  df_std['experience_level'].replace(['EN', 'MI', 'SE', 'EX'],[0, 1, 2, 3], inplace=True)
-  df_std['employment_type'].replace(['PT', 'FT'],[0, 1], inplace=True)
-  df_std['job_title'].replace(['Data Analyst', 'Data Scientist',  'Data Engineer'],[0,1,2], inplace=True)
-  df_std['company_size'].replace(['S','M','L'],[0,1,2], inplace=True)
-  df_std = pd.get_dummies(df_std, columns=['employee_residence','work_year', 'company_location','employment_type','remote_ratio'], drop_first=True)
+  df_std = pd.get_dummies(df_std, columns=['work_year',
+ 'experience_level',
+ 'employment_type',
+ 'job_title',
+ 'employee_residence',
+ 'remote_ratio',
+ 'company_location',
+ 'company_size'], drop_first=True)
 
 
 st.header('Why do we standardize the data?')
@@ -158,24 +173,19 @@ st.write(f'RMSE: {rmse:.2f}')
 score = regressor.score(X_test, Y_test)
 st.write(f'Accuracy: {score:.2f}')
 
-st.header('Not a great score...')
-st.markdown('Now to do some feature engineering, I am going to remove more columns that I think are not useful such as employee location, company location')
+st.header('Not a bad score but also not a great score...')
+st.markdown('Now to do some feature engineering, I am going to see what happens when I remove more columns that I think are not useful such as employee location, company location')
 
 left_column, right_column = st.columns(2)
 bool_col = left_column.radio('Remove some columns?', ('No','Yes'))
 if bool_col == 'Yes':
   df_std = df.copy()
   df_std = df.drop(columns=['employee_residence', 'company_location','work_year'])
-  df_std['experience_level'].replace(['EN', 'MI', 'SE', 'EX'],
-                        [0, 1, 2, 3], inplace=True)
-  df_std['employment_type'].replace(['PT','CT', 'FL','FT'],
-                        [0,1,2,3], inplace=True)
-  df_std['job_title'].replace(['Data Analyst','Data Scientist', 'Data Engineer'],
-                        [0,1,2], inplace=True)
-  df_std['company_size'].replace(['S','M','L'],
-                        [0,1,2], inplace=True)
-
-  df_std = pd.get_dummies(df_std, columns=['remote_ratio'], drop_first=True)
+  df_std = pd.get_dummies(df_std, columns=['experience_level',
+  'employment_type',
+  'job_title',
+  'remote_ratio',
+  'company_size'], drop_first=True)
 
   df_nosal = df_std.drop(columns=['salary_in_usd'])
   X = df_nosal
@@ -314,7 +324,6 @@ if bool_log == 'Yes':
   regressor.fit(X_train,Y_train)
 
   score = regressor.score(X_test,Y_test)
-  score = 0.03278688524590164
   st.write(f'Accuracy: {score:.2f}')
   Y_pred_train = regressor.predict(X_train)
   Y_pred_val = regressor.predict(X_test)
